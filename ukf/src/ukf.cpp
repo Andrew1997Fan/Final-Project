@@ -131,7 +131,7 @@ void ukf::correct(Eigen::VectorXd measure){
   delta_q_m_k3 << delta_q_m_k(0), delta_q_m_k(1), delta_q_m_k(2);
   delta_q_m_k4 = delta_q_m_k(3);
   e_m_k = f*delta_q_m_k3/(a+delta_q_m_k4);
-  measure[6] = e_m_k(0);w
+  measure[6] = e_m_k(0);
   measure[7] = e_m_k(1);
   measure[8] = e_m_k(2);
 
