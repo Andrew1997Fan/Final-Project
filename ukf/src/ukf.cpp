@@ -1,4 +1,5 @@
 #include "ukf.h"
+
 #include <tf/transform_datatypes.h>
 
 ukf::ukf(int state_size , int measurement_size){
@@ -25,7 +26,7 @@ ukf::ukf(int state_size , int measurement_size){
 
   H.setZero(y_size,x_size);  // measurement matrix
 
-  y = H*xr;
+  y = H*x;
 
   w_c.setZero(x_sigmavector_size);
   w_m.setZero(x_sigmavector_size);
@@ -79,7 +80,7 @@ void ukf::predict(){
   P_.setZero(x_size,x_size);
 
   for(int i=0 ; i<x_sigmavector_size ;i++){
-    P_ +=   w_c(i) * ((x_sigmavector.col(i) - x_hat) * (x_sigmavector.col(i) - x_hat).transpose) ;
+    P_ +=   w_c(i) * ((x_sigmavector.col(i) - x_hat) * ((x_sigmavector.col(i) - x_hat).transpose()) );
   }
   //add process noise covariance
   P_ += Q;
@@ -130,7 +131,7 @@ void ukf::correct(Eigen::VectorXd measure){
   delta_q_m_k3 << delta_q_m_k(0), delta_q_m_k(1), delta_q_m_k(2);
   delta_q_m_k4 = delta_q_m_k(3);
   e_m_k = f*delta_q_m_k3/(a+delta_q_m_k4);
-  measure[6] = e_m_k(0);
+  measure[6] = e_m_k(0);w
   measure[7] = e_m_k(1);
   measure[8] = e_m_k(2);
 
@@ -144,7 +145,7 @@ void ukf::correct(Eigen::VectorXd measure){
     Eigen::MatrixXd y_err;
     Eigen::MatrixXd y_err_t;
     y_err = y_sigmavector.col(i) - y_hat ;
-    y_err_t = err.transpose();
+    y_err_t = y_err.transpose();
 
     P_yy += w_c(i) * (y_err * y_err_t) ;
   }
@@ -159,7 +160,7 @@ void ukf::correct(Eigen::VectorXd measure){
     P_xy += w_c(i) * (x_err * y_err.transpose());
   }
 
-  Kalman_gain = P_xy * pow( P_yy , -1);
+  Kalman_gain = P_xy *  (P_yy.inverse());
 
   // correct states and covariance
   x = x_hat + Kalman_gain * ( y - y_hat) ;
